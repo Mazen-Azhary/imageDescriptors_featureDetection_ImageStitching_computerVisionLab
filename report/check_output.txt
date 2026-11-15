@@ -1,0 +1,30 @@
+
+Q3.1
+  PASS  chain: output lengths                                   20 transforms, 19 steps, 19 inlier counts
+  PASS  chain: T[0] is the identity                             largest difference 0
+  PASS  chain: T[k + 1] = T[k] @ inv(steps[k])                  largest difference 0
+  PASS  chain: first 20 frames of corniche                      30 m mean error
+  PASS  chain: a frame without features is lost                 lost steps [4, 5]
+  PASS  chain: a lost step reuses the last motion               largest difference 1.4e-14
+        (2.1 s)
+
+Q3.3
+  PASS  make_map: a color uint8 image                           (672, 704, 3)
+  PASS  make_map: frame 0 lands where S says                    correlation 0.99 with frame 0
+  PASS  make_map: white where no frame lands                    corner pixel [255 255 255]
+        (1.7 s)
+
+Q4.1
+  PASS  revisits: the end of loop finds its start               6 revisits
+  PASS  revisits: j - i >= gap, H from frame i to frame j       6 of 6 within 20 px of the truth
+  PASS  revisits: one partner per keyframe j                    6 revisits, 6 different j
+        (5.2 s)
+
+Q4.2
+  PASS  measurement_rows: shape                                 (8, 24)
+  PASS  measurement_rows: the true poses satisfy them           max |row . z| = 9.6e-14
+  PASS  measurement_rows: only frames 1 and 3 appear            0 nonzero coefficients in the columns of frames 0 and 2
+  PASS  correct: exact steps give back the poses                largest difference 4.3e-12
+        (0.0 s)
+
+16 of 16 checks passed

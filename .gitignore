@@ -56,3 +56,8 @@ venv.bak/
 *.sln
 *.swp
 
+
+# Claude Code
+.claude/
+CLAUDE.md
+CLAUDE.local.md

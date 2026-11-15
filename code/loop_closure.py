@@ -6,6 +6,9 @@ Check your work with:  python check.py 4.1   and   python check.py 4.2
 import numpy as np, cv2
 from utils import apply
 from fitting import estimate
+# TEMPORARY, only while Part 2 is unfinished: reuse the fallback estimate() from odometry.py. It ALWAYS calls Part 2's
+# fitting.estimate() first and only uses OpenCV if that raises NotImplementedError. Delete this line with that block.
+from odometry import estimate
 
 
 # ===================================================================== Q4.1 revisits
@@ -29,7 +32,14 @@ def revisits(F, every=3, gap=30, min_inliers=40):
         # Try every keyframe i at least `gap` frames before j: estimate(F[i], F[j], 'similarity').
         # Accept the pair when estimate() returns a transform with at least min_inliers inliers, and keep in
         # `best` the accepted (i, j, H, n_inliers) with the most inliers.
-        raise NotImplementedError('TODO 4.1 in loop_closure.py, revisits(): the best partner of keyframe j')
+        for i in keyframes:                                   # every keyframe ...
+            if i > j - gap:                                   # ... at least `gap` frames before j
+                break                                         # keyframes are in order, so the rest are too close
+            H, n, _ = estimate(F[i], F[j], 'similarity')      # H takes frame i to frame j, n = inliers
+            if H is None or n < min_inliers:                  # no fit, or too few inliers: not a revisit
+                continue                                      # skip to the next i
+            if best is None or n > best[3]:                   # first accepted pair, or more inliers than best
+                best = (i, j, H, n)                           # best[3] is its inlier count
         # ------------------------------------------------------------ end TODO -----
         if best is not None:
             found.append(best)
@@ -62,7 +72,18 @@ def measurement_rows(k, l, H, N, corners):
         # Write T_k(p) = T_l(H(p)) at p = (x, y) as two equations, one for each coordinate. Move everything
         # to one side, so that each reads row . z = 0, and write the coefficients into rx and ry, in the
         # columns of frames k and l.
-        raise NotImplementedError('TODO 4.2 in loop_closure.py, measurement_rows(): the coefficients')
+        rx[4 * k]     = x          # a_k   (from  a_k·x)
+        rx[4 * k + 1] = -y         # b_k   (from −b_k·y)
+        rx[4 * k + 2] = 1          # tx_k  (from +tx_k)
+        rx[4 * l]     = -u         # a_l   (from −a_l·u)
+        rx[4 * l + 1] = v          # b_l   (from +b_l·v)
+        rx[4 * l + 2] = -1         # tx_l  (from −tx_l)
+        ry[4 * k]     = y          # a_k   (from  a_k·y)
+        ry[4 * k + 1] = x          # b_k   (from  b_k·x)
+        ry[4 * k + 3] = 1          # ty_k  (from +ty_k)
+        ry[4 * l]     = -v         # a_l   (from −a_l·v)
+        ry[4 * l + 1] = -u         # b_l   (from −b_l·u)
+        ry[4 * l + 3] = -1         # ty_l  (from −ty_l)
         # ------------------------------------------------------------ end TODO -----
     return rows
 
