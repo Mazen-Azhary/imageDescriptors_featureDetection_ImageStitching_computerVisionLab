@@ -55,7 +55,30 @@ def fit_homography(p, q, normalize=True):
         # ------------------------------------------------------------ TODO 2.1b ----
         # Tp, Tq: (3, 3) similarities that move each point set to zero mean and an average distance of
         # sqrt(2) from the origin (Hartley, 1997).
-        raise NotImplementedError('TODO 2.1b in fitting.py, fit_homography(): Hartley normalization')
+
+        # Calculate the centroid (mean position) of each point set
+        cp = p.mean(axis=0)
+        cq = q.mean(axis=0)
+
+        # Calculate the average Euclidean distance from each centroid
+        dp = np.linalg.norm(p - cp, axis=1).mean()
+        dq = np.linalg.norm(q - cq, axis=1).mean()
+
+        # Calculate scaling factors to make the average distance sqrt(2)
+        sp = np.sqrt(2) / dp
+        sq = np.sqrt(2) / dq
+
+        # Fill transformation matrices with scaling and translation
+        Tp[0, 0] = sp
+        Tp[1, 1] = sp
+        Tp[0, 2] = -sp * cp[0]
+        Tp[1, 2] = -sp * cp[1]
+
+        Tq[0, 0] = sq
+        Tq[1, 1] = sq
+        Tq[0, 2] = -sq * cq[0]
+        Tq[1, 2] = -sq * cq[1]
+        
         # ------------------------------------------------------------ end TODO -----
     pn, qn = apply(Tp, p), apply(Tq, q)
     # ---------------------------------------------------------------- TODO 2.1c ----
