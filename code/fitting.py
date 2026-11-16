@@ -3,6 +3,7 @@
 You fill in the blocks marked TODO. Everything else already runs.
 Check your work with:  python check.py 2.1   and   python check.py 2.2
 """
+from matplotlib.pylab import sample
 import numpy as np, cv2
 from utils import apply
 from features import match
@@ -177,12 +178,40 @@ def ransac(p, q, fit, sample, thresh=3.0, p_success=0.99, max_iter=5000, seed=0)
             continue
         if not plausible(T, homography=(sample == 4)):
             continue
-        # ------------------------------------------------------------ TODO 2.2 -----
+        # ---------------app--------------------------------------------- TODO 2.2 -----
         # inliers: the matches i for which T maps p[i] to within thresh pixels of q[i].
         # If there are more of them than in best_inliers (and at least `sample`), keep them in best_inliers,
         # and set `needed`, the total number of iterations, with the formula of Lecture 8 for the new inlier
         # ratio and p_success.
-        raise NotImplementedError('TODO 2.2 in fitting.py, ransac(): score the hypothesis')
+
+        q_pred = apply(T, p)
+
+        # Calculate Euclidean reprojection error for each correspondence
+        errors = np.linalg.norm(q_pred - q, axis=1)
+
+        # Identify inliers whose reprojection error is below the threshold
+        inliers = errors < thresh
+
+        # Update the best model if we found more inliers
+        if inliers.sum() >= sample and (
+            best_inliers is None or inliers.sum() > best_inliers.sum()
+        ):
+            best_inliers = inliers
+
+            # Calculate the inlier ratio
+            w = inliers.sum() / n
+
+            # Calculate the required number of iterations using p = 0.99
+            e = 1 - w
+            if w == 1: 
+                needed = 1 
+            else:
+                needed = int(np.ceil(
+                    np.log(1 - p_success) /
+                    np.log(1 - (1 - e) ** sample)
+                ))
+
+
         # ------------------------------------------------------------ end TODO -----
     if best_inliers is None:
         return None, None, it
