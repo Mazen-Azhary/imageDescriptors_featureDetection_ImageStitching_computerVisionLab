@@ -50,11 +50,15 @@ def fit_homography(p, q, normalize=True):
     Returns:
         (3, 3) homography with H[2, 2] = 1.
     """
+    n = len(p)
+
     Tp, Tq = np.eye(3), np.eye(3)
     if normalize:
         # ------------------------------------------------------------ TODO 2.1b ----
         # Tp, Tq: (3, 3) similarities that move each point set to zero mean and an average distance of
         # sqrt(2) from the origin (Hartley, 1997).
+
+
 
         # Calculate the centroid (mean position) of each point set
         cp = p.mean(axis=0)
@@ -84,7 +88,28 @@ def fit_homography(p, q, normalize=True):
     # ---------------------------------------------------------------- TODO 2.1c ----
     # Hn: the homography taking pn to qn. Build the 2N x 9 DLT matrix (two rows per match), take the right
     # singular vector of its smallest singular value (np.linalg.svd), and reshape it to 3 x 3.
-    raise NotImplementedError('TODO 2.1c in fitting.py, fit_homography(): the DLT')
+    
+    Hn = np.zeros((2 * n, 9))
+
+    # Fill the DLT matrix using normalized point correspondences
+    for i in range(n):
+        x, y = pn[i]
+        xp, yp = qn[i]
+
+        Hn[2*i] = [
+            -x, -y, -1,
+            0,  0,  0,
+            x*xp, y*xp, xp
+        ]
+
+        Hn[2*i+1] = [
+            0,  0,  0,
+            -x, -y, -1,
+            x*yp, y*yp, yp
+        ]
+
+        
+
     # ---------------------------------------------------------------- end TODO -----
     H = np.linalg.inv(Tq) @ Hn @ Tp                       # undo the normalization
     return H / H[2, 2]
