@@ -108,7 +108,16 @@ def fit_homography(p, q, normalize=True):
             x*yp, y*yp, yp
         ]
 
-        
+        # Decompose the DLT matrix using SVD
+    U, S, Vt = np.linalg.svd(Hn)
+
+    # Extract the right singular vector with the smallest singular value
+    h = Vt[-1]
+
+    # Reshape into a 3x3 homography matrix
+    Hn = h.reshape(3, 3)
+
+
 
     # ---------------------------------------------------------------- end TODO -----
     H = np.linalg.inv(Tq) @ Hn @ Tp                       # undo the normalization
