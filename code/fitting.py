@@ -24,7 +24,16 @@ def fit_similarity(p, q):
     A, rhs = np.zeros((2 * n, 4)), np.zeros(2 * n)       # unknowns (a, b, tx, ty)
     # ---------------------------------------------------------------- TODO 2.1a ----
     # Fill A and rhs: two rows per match, one for x' and one for y'.
-    raise NotImplementedError('TODO 2.1a in fitting.py, fit_similarity(): build A and rhs')
+
+    for i in range(n):
+        x, y = p[i]
+        xp, yp = q[i]
+
+        A[2*i]   = [x, -y, 1, 0]
+        A[2*i+1] = [y,  x, 0, 1]
+
+        rhs[2*i]   = xp
+        rhs[2*i+1] = yp
     # ---------------------------------------------------------------- end TODO -----
     a, b, tx, ty = np.linalg.lstsq(A, rhs, rcond=None)[0]
     return np.array([[a, -b, tx], [b, a, ty], [0, 0, 1.0]])
